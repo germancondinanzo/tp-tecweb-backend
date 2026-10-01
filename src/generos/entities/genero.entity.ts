@@ -1,4 +1,5 @@
-import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
+import { Banda } from '../../bandas/entities/banda.entity';
 
 @Entity()
 export class Genero {
@@ -7,4 +8,7 @@ export class Genero {
 
   @Column({ unique: true })
   nombre: string;
+
+  @OneToMany(() => Banda, (banda) => banda.genero)
+  bandas: Banda[];
 }

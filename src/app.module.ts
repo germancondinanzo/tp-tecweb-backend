@@ -4,6 +4,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { GenerosModule } from './generos/generos.module';
+import { BandasModule } from './bandas/bandas.module';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { GenerosModule } from './generos/generos.module';
       inject: [ConfigService],
     }),
     GenerosModule,
+    BandasModule,
   ],
   controllers: [AppController],
   providers: [AppService],
