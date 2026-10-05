@@ -1,0 +1,21 @@
+$kind: http-request
+description: "Solo devuelve las bandas del género indicado. El query param es opcional: sin él devuelve todas."
+url: "{{baseUrl}}/bandas?generoId={{generoId}}"
+method: GET
+queryParams:
+  generoId: "{{generoId}}"
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('200 OK', function () {
+          pm.response.to.have.status(200);
+      });
+
+      pm.test('todas las bandas son del género filtrado', function () {
+          const lista = pm.response.json();
+          lista.forEach(function (banda) {
+              pm.expect(banda.generoId).to.eql(Number(pm.collectionVariables.get('generoId')));
+          });
+      });
+    language: text/javascript
+order: 4000

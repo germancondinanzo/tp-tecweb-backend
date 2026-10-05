@@ -1,0 +1,15 @@
+$kind: http-request
+url: "{{baseUrl}}/bandas/{{bandaId}}"
+method: GET
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('200 OK', function () {
+          pm.response.to.have.status(200);
+      });
+
+      pm.test('el id coincide con el solicitado', function () {
+          pm.expect(pm.response.json().id).to.eql(Number(pm.collectionVariables.get('bandaId')));
+      });
+    language: text/javascript
+order: 5000

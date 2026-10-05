@@ -1,0 +1,3 @@
+$kind: collection
+description: CRUD completo del recurso /generos, más los casos de error.
+order: 1000

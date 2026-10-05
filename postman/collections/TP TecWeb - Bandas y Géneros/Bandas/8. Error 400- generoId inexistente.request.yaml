@@ -1,0 +1,24 @@
+$kind: http-request
+name: "8. Error 400: generoId inexistente"
+description: El género cumple el formato del DTO pero no existe en la base. El service lo verifica y responde 400 con BadRequestException (no 404, porque el recurso que se está creando es la banda).
+url: "{{baseUrl}}/bandas"
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+      "nombre": "Banda Fantasma",
+      "pais": "Ninguno",
+      "anioFormacion": 2000,
+      "generoId": 999999
+    }
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('400 Bad Request', function () {
+          pm.response.to.have.status(400);
+      });
+    language: text/javascript
+order: 8000

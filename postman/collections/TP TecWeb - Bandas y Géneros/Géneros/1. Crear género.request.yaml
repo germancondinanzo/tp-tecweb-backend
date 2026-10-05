@@ -1,0 +1,28 @@
+$kind: http-request
+description: Devuelve 201 Created. Guarda el id devuelto en la variable {{generoId}} para los casos siguientes.
+url: "{{baseUrl}}/generos"
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+      "nombre": "Rock {{$randomInt}}"
+    }
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('201 Created', function () {
+          pm.response.to.have.status(201);
+      });
+
+      const body = pm.response.json();
+      if (body.id) { pm.collectionVariables.set('generoId', body.id); }
+
+      pm.test('devuelve id y nombre', function () {
+          pm.expect(body.id).to.be.a('number');
+          pm.expect(body.nombre).to.be.a('string');
+      });
+    language: text/javascript
+order: 1000

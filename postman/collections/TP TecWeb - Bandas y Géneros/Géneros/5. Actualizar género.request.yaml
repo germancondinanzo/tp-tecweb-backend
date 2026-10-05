@@ -1,0 +1,23 @@
+$kind: http-request
+url: "{{baseUrl}}/generos/{{generoId}}"
+method: PUT
+headers:
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+      "nombre": "Hard Rock"
+    }
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('200 OK', function () {
+          pm.response.to.have.status(200);
+      });
+
+      pm.test('el nombre quedó actualizado', function () {
+          pm.expect(pm.response.json().nombre).to.eql('Hard Rock');
+      });
+    language: text/javascript
+order: 5000

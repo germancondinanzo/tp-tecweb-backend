@@ -1,0 +1,13 @@
+$kind: http-request
+name: "8. Error 404: obtener género inexistente"
+description: El service lanza NotFoundException → 404.
+url: "{{baseUrl}}/generos/999999"
+method: GET
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('404 Not Found', function () {
+          pm.response.to.have.status(404);
+      });
+    language: text/javascript
+order: 8000

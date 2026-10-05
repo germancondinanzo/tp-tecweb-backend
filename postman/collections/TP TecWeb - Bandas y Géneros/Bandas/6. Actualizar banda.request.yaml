@@ -1,0 +1,24 @@
+$kind: http-request
+description: El UpdateBandaDto es un PartialType del Create, así que alcanza con mandar el campo que cambia.
+url: "{{baseUrl}}/bandas/{{bandaId}}"
+method: PUT
+headers:
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+      "nombre": "The Beatles (Beatles)"
+    }
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('200 OK', function () {
+          pm.response.to.have.status(200);
+      });
+
+      pm.test('el nombre quedó actualizado', function () {
+          pm.expect(pm.response.json().nombre).to.eql('The Beatles (Beatles)');
+      });
+    language: text/javascript
+order: 6000

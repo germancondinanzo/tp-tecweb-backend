@@ -1,0 +1,12 @@
+$kind: http-request
+description: Devuelve 204 No Content. Se hace al final porque borra el registro.
+url: "{{baseUrl}}/bandas/{{bandaId}}"
+method: DELETE
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('204 No Content', function () {
+          pm.response.to.have.status(204);
+      });
+    language: text/javascript
+order: 12000

@@ -1,0 +1,30 @@
+$kind: http-request
+description: Devuelve 201 Created. Genero va anidado en la respuesta (relations). Guarda el id en {{bandaId}}.
+url: "{{baseUrl}}/bandas"
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+      "nombre": "The Beatles",
+      "pais": "Reino Unido",
+      "anioFormacion": 1960,
+      "generoId": {{generoId}}
+    }
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('201 Created', function () {
+          pm.response.to.have.status(201);
+      });
+
+      const body = pm.response.json();
+      if (body.id) { pm.collectionVariables.set('bandaId', body.id); }
+
+      pm.test('trae el género anidado', function () {
+          pm.expect(body.genero).to.be.an('object');
+      });
+    language: text/javascript
+order: 1000

@@ -1,0 +1,17 @@
+$kind: collection
+description: |-
+  Colección de la primera entrega del TP de Tecnologías Web (TUARI).
+
+  API REST sobre NestJS + PostgreSQL + TypeORM.
+  Modelo: Género (1) --- Banda (N).
+
+  Cómo usarla:
+  1. Levantá la base de datos:  docker-compose up -d
+  2. Levantá el servidor:          npm run start:dev
+  3. Ejecutá primero la carpeta 'Géneros' completa, después 'Bandas'.
+
+  Las carpetas están ordenadas: los casos de éxito (que devuelven 201) tienen que correr antes que los que consultan o borran por id, porque son los que crean los registros y guardan el id en una variable de la colección.
+variables:
+  baseUrl: http://localhost:3000
+  generoId: ""
+  bandaId: ""

@@ -1,0 +1,15 @@
+$kind: http-request
+name: "9. Error 400: filtro con valor no numérico"
+description: "El ParseIntPipe del query (con optional: true) rechaza un valor no numérico → 400."
+url: "{{baseUrl}}/bandas?generoId=abc"
+method: GET
+queryParams:
+  generoId: abc
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('400 Bad Request', function () {
+          pm.response.to.have.status(400);
+      });
+    language: text/javascript
+order: 9000

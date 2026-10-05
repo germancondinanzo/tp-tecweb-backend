@@ -1,0 +1,26 @@
+$kind: http-request
+name: 7. Error 400:_property no permitida
+description: Manda 'color', que no existe en el DTO. forbidNonWhitelisted lo rechaza con 400.
+url: "{{baseUrl}}/generos"
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+      "nombre": "Jazz",
+      "color": "azul"
+    }
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('400 Bad Request', function () {
+          pm.response.to.have.status(400);
+      });
+
+      pm.test('el mensaje menciona la propiedad desconocida', function () {
+          pm.expect(pm.response.text()).to.include('color');
+      });
+    language: text/javascript
+order: 7000

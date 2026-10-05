@@ -1,0 +1,24 @@
+$kind: http-request
+name: "7. Error 400: anioFormacion inválido"
+description: Falla @IsNumber y los @Min/@Max del rango 1800-2100.
+url: "{{baseUrl}}/bandas"
+method: POST
+headers:
+  Content-Type: application/json
+body:
+  type: text
+  content: |-
+    {
+      "nombre": "X",
+      "pais": "Y",
+      "anioFormacion": "abc",
+      "generoId": {{generoId}}
+    }
+scripts:
+  - type: afterResponse
+    code: |-
+      pm.test('400 Bad Request', function () {
+          pm.response.to.have.status(400);
+      });
+    language: text/javascript
+order: 7000

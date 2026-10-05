@@ -1,0 +1,13 @@
+# Use this workspace to collaborate
+workspace:
+  id: d3b880f4-f5fc-408d-8d12-e4e01bbafd92
+
+localResources:
+  collections:
+    - ../postman_collection.json
+
+# Each entry here maps a local resource to one or more corresponding objects in Postman Cloud
+
+cloudResources:
+  collections:
+    ../postman/collections/TP TecWeb - Bandas y Géneros: 47e71a00-db88-4ee1-a481-dd814ab1d3aa

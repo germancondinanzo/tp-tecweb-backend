@@ -1,0 +1,788 @@
+{
+  "info": {
+    "_postman_id": "a1b2c3d4-0000-4000-8000-tptecweb001",
+    "name": "TP TecWeb - Bandas y Géneros",
+    "description": "Colección de la primera entrega del TP de Tecnologías Web (TUARI).\n\nAPI REST sobre NestJS + PostgreSQL + TypeORM.\nModelo: Género (1) --- Banda (N).\n\nCómo usarla:\n1. Levantá la base de datos:  docker-compose up -d\n2. Levantá el servidor:          npm run start:dev\n3. Ejecutá primero la carpeta 'Géneros' completa, después 'Bandas'.\n\nLas carpetas están ordenadas: los casos de éxito (que devuelven 201) tienen que correr antes que los que consultan o borran por id, porque son los que crean los registros y guardan el id en una variable de la colección.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000"
+    },
+    {
+      "key": "generoId",
+      "value": ""
+    },
+    {
+      "key": "generoIdBandas",
+      "value": ""
+    },
+    {
+      "key": "bandaId",
+      "value": ""
+    }
+  ],
+  "item": [
+    {
+      "name": "Géneros",
+      "description": "CRUD completo del recurso /generos, más los casos de error.",
+      "item": [
+        {
+          "name": "1. Crear género",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Rock {{$randomInt}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/generos",
+              "host": ["{{baseUrl}}"],
+              "path": ["generos"]
+            },
+            "description": "Devuelve 201 Created. Guarda el id devuelto en la variable {{generoId}} para los casos siguientes."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('201 Created', function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "const body = pm.response.json();",
+                  "if (body.id) { pm.collectionVariables.set('generoId', body.id); }",
+                  "",
+                  "pm.test('devuelve id y nombre', function () {",
+                  "    pm.expect(body.id).to.be.a('number');",
+                  "    pm.expect(body.nombre).to.be.a('string');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "2. Crear género auxiliar (para Bandas)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Metal {{$randomInt}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/generos",
+              "host": ["{{baseUrl}}"],
+              "path": ["generos"]
+            },
+            "description": "Este género es el que usan los requests de la carpeta Bandas. La carpeta Géneros solo borra el suyo (el del request 1), este queda."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('201 Created', function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "const body = pm.response.json();",
+                  "if (body.id) { pm.collectionVariables.set('generoIdBandas', body.id); }"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "3. Listar géneros",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/generos",
+              "host": ["{{baseUrl}}"],
+              "path": ["generos"]
+            },
+            "description": "Devuelve 200 con un array de todos los géneros."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200 OK', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('devuelve un array', function () {",
+                  "    pm.expect(pm.response.json()).to.be.an('array');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "4. Obtener género por id",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/generos/{{generoId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["generos", "{{generoId}}"]
+            },
+            "description": "Usa el {{generoId}} que se guardó en el caso 1."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200 OK', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('el id coincide con el solicitado', function () {",
+                  "    pm.expect(pm.response.json().id).to.eql(Number(pm.collectionVariables.get('generoId')));",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "5. Actualizar género",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Hard Rock\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/generos/{{generoId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["generos", "{{generoId}}"]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200 OK', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('el nombre quedó actualizado', function () {",
+                  "    pm.expect(pm.response.json().nombre).to.eql('Hard Rock');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "6. Error 400: crear género sin nombre",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/generos",
+              "host": ["{{baseUrl}}"],
+              "path": ["generos"]
+            },
+            "description": "Falta el campo obligatorio nombre: el ValidationPipe global responde 400."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('400 Bad Request', function () {",
+                  "    pm.response.to.have.status(400);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "7. Error 400:_property no permitida",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Jazz\",\n  \"color\": \"azul\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/generos",
+              "host": ["{{baseUrl}}"],
+              "path": ["generos"]
+            },
+            "description": "Manda 'color', que no existe en el DTO. forbidNonWhitelisted lo rechaza con 400."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('400 Bad Request', function () {",
+                  "    pm.response.to.have.status(400);",
+                  "});",
+                  "",
+                  "pm.test('el mensaje menciona la propiedad desconocida', function () {",
+                  "    pm.expect(pm.response.text()).to.include('color');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "8. Error 404: obtener género inexistente",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/generos/999999",
+              "host": ["{{baseUrl}}"],
+              "path": ["generos", "999999"]
+            },
+            "description": "El service lanza NotFoundException → 404."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('404 Not Found', function () {",
+                  "    pm.response.to.have.status(404);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "9. Error 400: id no numérico",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/generos/abc",
+              "host": ["{{baseUrl}}"],
+              "path": ["generos", "abc"]
+            },
+            "description": "El ParseIntPipe del controller rechaza 'abc' → 400."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('400 Bad Request', function () {",
+                  "    pm.response.to.have.status(400);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "10. Eliminar género",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/generos/{{generoId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["generos", "{{generoId}}"]
+            },
+            "description": "Borra el género del request 1 ({{generoId}}). El género auxiliar del request 2 NO se borra, porque la carpeta Bandas lo necesita."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('204 No Content', function () {",
+                  "    pm.response.to.have.status(204);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Bandas",
+      "description": "CRUD completo del recurso /bandas, el filtrado por género y los casos de error.\n\nUsa {{generoIdBandas}}, que es el género auxiliar que crea el request 2 de la carpeta Géneros. Por eso hay que correr esa carpeta (al menos hasta el request 2) antes que esta.",
+      "item": [
+        {
+          "name": "1. Crear banda",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"The Beatles\",\n  \"pais\": \"Reino Unido\",\n  \"anioFormacion\": 1960,\n  \"generoId\": {{generoIdBandas}}\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/bandas",
+              "host": ["{{baseUrl}}"],
+              "path": ["bandas"]
+            },
+            "description": "Devuelve 201 Created con los datos de la banda (sin el género anidado: el género llega en los GET, que sí piden la relación). Guarda el id en {{bandaId}}."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('201 Created', function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "const body = pm.response.json();",
+                  "if (body.id) { pm.collectionVariables.set('bandaId', body.id); }",
+                  "",
+                  "pm.test('devuelve los datos de la banda', function () {",
+                  "    pm.expect(body.id).to.be.a('number');",
+                  "    pm.expect(body.nombre).to.be.a('string');",
+                  "    pm.expect(body.pais).to.be.a('string');",
+                  "    pm.expect(body.anioFormacion).to.be.a('number');",
+                  "    pm.expect(body.generoId).to.be.a('number');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "2. Crear segunda banda",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Ghost\",\n  \"pais\": \"Suecia\",\n  \"anioFormacion\": 2006,\n  \"generoId\": {{generoIdBandas}}\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/bandas",
+              "host": ["{{baseUrl}}"],
+              "path": ["bandas"]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('201 Created', function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "3. Listar bandas",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/bandas",
+              "host": ["{{baseUrl}}"],
+              "path": ["bandas"]
+            },
+            "description": "Devuelve 200 con el array de bandas, cada una con su género anidado."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200 OK', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('devuelve un array', function () {",
+                  "    pm.expect(pm.response.json()).to.be.an('array');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "4. Filtrar bandas por género",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/bandas?generoId={{generoIdBandas}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["bandas"],
+              "query": [
+                {
+                  "key": "generoId",
+                  "value": "{{generoIdBandas}}"
+                }
+              ]
+            },
+            "description": "Solo devuelve las bandas del género indicado. El query param es opcional: sin él devuelve todas."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200 OK', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('todas las bandas son del género filtrado', function () {",
+                  "    const lista = pm.response.json();",
+                  "    lista.forEach(function (banda) {",
+                  "        pm.expect(banda.generoId).to.eql(Number(pm.collectionVariables.get('generoIdBandas')));",
+                  "    });",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "5. Obtener banda por id",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/bandas/{{bandaId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["bandas", "{{bandaId}}"]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200 OK', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('el id coincide con el solicitado', function () {",
+                  "    pm.expect(pm.response.json().id).to.eql(Number(pm.collectionVariables.get('bandaId')));",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "6. Actualizar banda",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"The Beatles (Beatles)\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/bandas/{{bandaId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["bandas", "{{bandaId}}"]
+            },
+            "description": "El UpdateBandaDto es un PartialType del Create, así que alcanza con mandar el campo que cambia."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('200 OK', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('el nombre quedó actualizado', function () {",
+                  "    pm.expect(pm.response.json().nombre).to.eql('The Beatles (Beatles)');",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "7. Error 400: anioFormacion inválido",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"X\",\n  \"pais\": \"Y\",\n  \"anioFormacion\": \"abc\",\n  \"generoId\": {{generoIdBandas}}\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/bandas",
+              "host": ["{{baseUrl}}"],
+              "path": ["bandas"]
+            },
+            "description": "Falla @IsNumber y los @Min/@Max del rango 1800-2100."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('400 Bad Request', function () {",
+                  "    pm.response.to.have.status(400);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "8. Error 400: generoId inexistente",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nombre\": \"Banda Fantasma\",\n  \"pais\": \"Ninguno\",\n  \"anioFormacion\": 2000,\n  \"generoId\": 999999\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/bandas",
+              "host": ["{{baseUrl}}"],
+              "path": ["bandas"]
+            },
+            "description": "El género cumple el formato del DTO pero no existe en la base. El service lo verifica y responde 400 con BadRequestException (no 404, porque el recurso que se está creando es la banda)."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('400 Bad Request', function () {",
+                  "    pm.response.to.have.status(400);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "9. Error 400: filtro con valor no numérico",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/bandas?generoId=abc",
+              "host": ["{{baseUrl}}"],
+              "path": ["bandas"],
+              "query": [
+                {
+                  "key": "generoId",
+                  "value": "abc"
+                }
+              ]
+            },
+            "description": "El ParseIntPipe del query (con optional: true) rechaza un valor no numérico → 400."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('400 Bad Request', function () {",
+                  "    pm.response.to.have.status(400);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "10. Error 404: obtener banda inexistente",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/bandas/999999",
+              "host": ["{{baseUrl}}"],
+              "path": ["bandas", "999999"]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('404 Not Found', function () {",
+                  "    pm.response.to.have.status(404);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "11. Error 404: eliminar banda inexistente",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/bandas/999999",
+              "host": ["{{baseUrl}}"],
+              "path": ["bandas", "999999"]
+            }
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('404 Not Found', function () {",
+                  "    pm.response.to.have.status(404);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "12. Eliminar banda",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/bandas/{{bandaId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["bandas", "{{bandaId}}"]
+            },
+            "description": "Devuelve 204 No Content. Se hace al final porque borra el registro."
+          },
+          "response": [],
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('204 No Content', function () {",
+                  "    pm.response.to.have.status(204);",
+                  "});"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

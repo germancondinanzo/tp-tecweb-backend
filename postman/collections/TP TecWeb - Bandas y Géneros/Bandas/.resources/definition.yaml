@@ -1,0 +1,6 @@
+$kind: collection
+description: |-
+  CRUD completo del recurso /bandas, el filtrado por género y los casos de error.
+
+  Requiere que existan géneros (corré primero la carpeta Géneros hasta el caso 2).
+order: 2000
