@@ -24,8 +24,11 @@ export class BandasService {
     return this.bandasRepository.save(banda);
   }
 
-  async findAll(): Promise<Banda[]> {
-    return this.bandasRepository.find({ relations: { genero: true } });
+  async findAll(generoId?: number): Promise<Banda[]> {
+    return this.bandasRepository.find({
+      where: generoId ? { generoId } : {},
+      relations: { genero: true },
+    });
   }
 
   async findOne(id: number): Promise<Banda> {

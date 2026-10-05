@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Put, Delete, Param, Body, ParseIntPipe, HttpCode, HttpStatus } from '@nestjs/common';
+import { Controller, Get, Post, Put, Delete, Param, Body, ParseIntPipe, HttpCode, HttpStatus, Query } from '@nestjs/common';
 import { BandasService } from './bandas.service';
 import { CreateBandaDto } from './dto/create-banda.dto';
 import { UpdateBandaDto } from './dto/update-banda.dto';
@@ -13,8 +13,8 @@ export class BandasController {
   }
 
   @Get()
-  findAll() {
-    return this.bandasService.findAll();
+  findAll(@Query('generoId', new ParseIntPipe({ optional: true })) generoId?: number) {
+    return this.bandasService.findAll(generoId);
   }
 
   @Get(':id')
