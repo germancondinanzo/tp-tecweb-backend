@@ -104,17 +104,22 @@ Módulo `bandas/` completo, con la relación 1 a N:
 | Validaciones y códigos HTTP correctos | OK — `ValidationPipe` global |
 | Colección de Postman subida al repo | OK — 22 requests / 32 verificaciones |
 | Historial de sesiones / decisiones | OK — este archivo |
+| Log de la sesión con opencode | OK — `LOG-SESION-OPENCODE.json` |
 
-**Commits:** 4 commits de desarrollo + este historial, uno por paso.
+**Commits:** 4 commits de desarrollo + 2 de documentación (este historial y el log de opencode).
 
 ### Commits
 
 ```
+19edac2  docs: log de la sesion con opencode
+632d943  docs: historial de sesiones y decisiones de la Entrega 1
 ff954c5  test: colección Postman con casos de éxito y error
 5a57b29  feat: ValidationPipe global y filtrado de bandas por género
 4e233d8  feat: CRUD Bandas con relación ManyToOne a Género
 ca93c07  feat: CRUD Géneros (entity, DTOs, service, controller, TypeORM)
 ```
+
+Cada uno es una unidad que funciona por sí sola: los dos de documentación cierran la entrega (decisiones tomadas y log completo de la sesión con la IA).
 
 ### Limpieza final de la base de datos
 
