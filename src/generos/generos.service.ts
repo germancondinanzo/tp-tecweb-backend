@@ -31,7 +31,7 @@ export class GenerosService {
   }
 
   async findAll(): Promise<Genero[]> {
-    return this.generosRepository.find();
+    return this.generosRepository.find({ order: { nombre: 'ASC' } });
   }
 
   async findOne(id: number): Promise<Genero> {
