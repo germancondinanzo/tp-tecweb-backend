@@ -20,13 +20,13 @@ export class BandasService {
     if (!genero) {
       throw new BadRequestException(`Género con id ${dto.generoId} no existe`);
     }
-    const banda = this.bandasRepository.create(dto);
+    const banda = this.bandasRepository.create({ ...dto, genero });
     return this.bandasRepository.save(banda);
   }
 
   async findAll(generoId?: number): Promise<Banda[]> {
     return this.bandasRepository.find({
-      where: generoId ? { generoId } : {},
+      where: generoId !== undefined ? { generoId } : {},
       relations: { genero: true },
     });
   }
@@ -43,7 +43,7 @@ export class BandasService {
   }
 
   async update(id: number, dto: UpdateBandaDto): Promise<Banda> {
-    if (dto.generoId) {
+    if (dto.generoId !== undefined) {
       const genero = await this.generosRepository.findOne({ where: { id: dto.generoId } });
       if (!genero) {
         throw new BadRequestException(`Género con id ${dto.generoId} no existe`);
