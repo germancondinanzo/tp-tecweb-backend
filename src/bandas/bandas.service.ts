@@ -25,11 +25,9 @@ export class BandasService {
   }
 
   async findAll(generoId?: number): Promise<Banda[]> {
-    const where = generoId !== undefined ? { generoId } : {};
     return this.bandasRepository.find({
-      where,
+      where: generoId !== undefined ? { generoId } : {},
       relations: { genero: true },
-      order: { nombre: 'ASC' },
     });
   }
 
