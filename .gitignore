@@ -19,3 +19,8 @@ Thumbs.db
 # logs
 *.log
 npm-debug.log*
+
+# sesiones de IA / exportaciones locales (no versionar)
+LOG-SESION-OPENCODE.json
+.postman/
+postman/
