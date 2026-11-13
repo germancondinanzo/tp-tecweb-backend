@@ -177,6 +177,9 @@ La configuración `development` de `angular.json` hace el `fileReplacements` de
 `environment.ts` por `environment.development.ts`: así `npm start` apunta al backend local y
 `npm run build` al de Render, sin tocar los servicios.
 
+> El detalle de cada archivo, las decisiones y el flujo completo de una request está en
+> `GUIA-FRONTEND.md`, en el repo del frontend.
+
 ### Cómo se armó
 
 1. **Base del proyecto** — `ng new` con NgModules, routing y SCSS. Se mantuvo NgModules (no
