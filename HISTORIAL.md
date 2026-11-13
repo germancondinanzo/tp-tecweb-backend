@@ -141,4 +141,191 @@ Luego se cargaron datos de ejemplo por HTTP:
 
 **Nota:** esta limpieza no modificó ningún archivo del repo, así que no generó commit. Solo afectó al volumen de Docker en la máquina local.
 
-**Pendiente:** Entrega 2 — Frontend Angular + deploy (Render para backend, Netlify para frontend), en un repo de GitHub separado.
+---
+
+## Entrega 2 — Frontend (Angular) + Deploy
+
+**Repo:** https://github.com/germancondinanzo/tp-tecweb-frontend
+
+**Deploys:**
+
+| Parte | URL |
+|---|---|
+| Frontend (Netlify) | https://courageous-dango-2e1b41.netlify.app |
+| Backend (Render) | https://tp-tecweb-backend.onrender.com |
+
+### Arquitectura del frontend
+
+Angular 20 con **NgModules** (el estándar que usa la cátedra), Bootstrap 5 y formularios
+**template-driven** (`[(ngModel)]` + `FormsModule`).
+
+```
+src/app/
+  app-module.ts            ← declara App, Generos y Bandas; provee HttpClient
+  app-routing-module.ts    ← '' → /bandas, /generos, /bandas, ** → /bandas
+  app.ts / app.html        ← navbar + <router-outlet>
+  generos/                 ← CRUD de géneros (tabla + alta y edición en línea)
+  bandas/                  ← CRUD de bandas (tabla + formulario con <select> de género)
+  services/                ← GenerosService y BandasService (HttpClient)
+  models/                  ← interfaces Genero, Banda, BandaPayload
+src/environments/
+  environment.ts              ← producción: https://tp-tecweb-backend.onrender.com
+  environment.development.ts  ← desarrollo: http://localhost:3000
+```
+
+La configuración `development` de `angular.json` hace el `fileReplacements` de
+`environment.ts` por `environment.development.ts`: así `npm start` apunta al backend local y
+`npm run build` al de Render, sin tocar los servicios.
+
+### Cómo se armó
+
+1. **Base del proyecto** — `ng new` con NgModules, routing y SCSS. Se mantuvo NgModules (no
+   standalone) para seguir el material de la cátedra.
+2. **Modelo y servicios** — interfaces `Genero`/`Banda`/`BandaPayload` y un servicio por entidad
+   (`getAll`, `create`, `update`, `remove`; en Bandas además `getOne` y el filtro `?generoId=`).
+   La URL base sale de `environment`, no está escrita a mano en cada servicio.
+3. **Géneros** — listado en tabla, alta con formulario template-driven, edición en línea y
+   borrado con confirmación.
+4. **Bandas con la relación 1 a N** — el listado muestra el género como badge
+   (`banda.genero.nombre`, que llega anidado desde el backend) y el formulario tiene un
+   `<select>` que carga los géneros con `[ngValue]="genero.id"`. Al editar, el select queda
+   preseleccionado porque se bindea por **id**, no por objeto.
+5. **Layout** — Bootstrap cargado desde `angular.json`, navbar responsive y tablas
+   `table-responsive` para que se vean bien en el celular.
+6. **Errores y validación** — se muestra al usuario un `alert` con el mensaje del backend
+   (incluido el caso en que `class-validator` devuelve `message` como **array**) y un estado de
+   carga con spinner mientras responde la API.
+
+### Deploy
+
+**Backend en Render** (servicio web + PostgreSQL):
+- Build `npm install && npm run build`; start `npm run start:prod` (`node dist/main`).
+- Variables de `.env.example` cargadas en el panel; base por **Internal Database URL**.
+- La app escucha en `process.env.PORT`; `app.enableCors()` para que el sitio de Netlify pueda
+  consumir la API.
+- Se cargaron datos de ejemplo vía la API para que el docente vea las listas con contenido
+  (4 géneros / 8 bandas).
+
+**Frontend en Netlify** (conectado al repo, deploy automático desde `main`):
+- Build `npm run build`; publish `dist/tp-tecweb-frontend` (salida aplanada en `angular.json`,
+  sin subcarpeta `browser`).
+- `netlify.toml` + `public/_redirects` con `/* /index.html 200`, para que refrescar en
+  `/generos` o `/bandas` no devuelva 404.
+
+### Errores resueltos durante la Entrega 2
+
+1. **Templates con errores de compilación.** Los templates originales usaban construcciones que
+   el chequeo estricto de Angular no aceptaba; se reescribieron más simples (`*ngIf` /
+   `*ngFor`), manteniendo el comportamiento.
+2. **El build de producción apuntaba a `localhost`.** `environment.ts` tenía la URL de
+   desarrollo. Fix: `apiUrl` de producción a Render (`2443c8d`), sin tocar los servicios.
+3. **El `publish` de Netlify no coincidía con la salida del build** (`dist/.../browser` vs
+   `dist/...`). Fix: aplanar `outputPath` en `angular.json` y alinear `publish` en
+   `netlify.toml` (`894011e`).
+4. **404 al refrescar rutas internas.** Es el comportamiento normal de una SPA en un servidor
+   estático. Fix: `_redirects` y el redirect de Netlify (`8aa0ced`, `f8f1ff3`).
+5. **Al crear una banda no se guardaba la relación con el género.** Se corrigió asignando la
+   entidad `genero` además del `generoId` en `bandas.service.ts` (`d40c6f5`).
+6. **El navegador bloqueaba las llamadas por CORS.** Fix: `app.enableCors()` en el backend
+   (`4d0eb74`).
+7. **Mensajes de error poco útiles.** El backend pasó a devolver 409 al repetir un género y 400
+   con mensaje cuando el género no existe (`08e6368`), y el front los muestra en pantalla.
+8. **Deploy bloqueado en Netlify.** El sitio original quedó **pausado por créditos agotados**
+   del plan gratuito: los deploys de producción no se ejecutaban y se seguía sirviendo un
+   bundle viejo con `apiUrl: ""`. Se publicó un respaldo temporal en GitHub Pages para no
+   quedar sin URL y, al crear un sitio nuevo, hubo que **desactivar la protección** del sitio
+   (devolvía 401, y la consigna pide que se abra en incógnito).
+9. **2 tests del componente Bandas fallaban** (`NG0201: No provider found for _HttpClient`)
+   porque el `TestBed` no tenía `provideHttpClient()`. Fix en `bandas.spec.ts` (`a64ba15`).
+10. **Los tests e2e del backend no arrancaban**: Jest cargaba con `require` paquetes ESM de Nest
+    (`@nestjs/config`, `@nestjs/typeorm`). Fix: ejecutar Jest con `--experimental-vm-modules`
+    (`fb2dadf`).
+11. **Faltaba `.env.example`.** Se agregó con los nombres de todas las variables (`a24a9e2`).
+
+### Verificación de la entrega
+
+| Requisito (consigna Entrega 2) | Estado |
+|---|---|
+| CRUD completo desde la UI, mostrando las dos entidades y su relación | OK |
+| Consume los endpoints de la Entrega 1 vía servicios de Angular | OK |
+| Manejo de errores y mensajes al usuario | OK — alerta con el mensaje del backend |
+| Validación de formularios | OK — `required` en el front + validaciones del DTO en el back |
+| Build de producción sin `localhost` | OK |
+| Backend deployado en Render, responde con datos | OK |
+| Postman funciona contra Render cambiando solo `baseUrl` | OK |
+| Frontend deployado en Netlify (incógnito, deep-link sin 404) | OK |
+| README del front con las URLs y el del back con la de Render | OK |
+| Historial de la sesión | OK — este archivo |
+
+**Pruebas sobre el sitio publicado:** carga de 4 géneros y 8 bandas desde Render, cero errores
+de consola, refresco en `/generos` y `/bandas` sin 404, y un 409 provocado a propósito (género
+duplicado) que se muestra como alerta sin romper la pantalla ni duplicar la tabla.
+
+### Commits del frontend
+
+```
+2652cb2  chore: proyecto Angular 20 con NgModules, routing y SCSS
+3a8d86c  feat: interfaces Genero y Banda del modelo
+78e74cf  feat: environments y GenerosService con HttpClient
+cf1fb48  feat: listado de generos consumiendo la API
+3c985ab  feat: alta de generos con formulario template-driven
+a9419a7  feat: edicion y borrado de generos
+f317b50  feat: BandasService y tipo BandaPayload
+99e294e  feat: listado de bandas con genero anidado
+dd84330  feat: filtro de bandas por genero
+3c0f525  feat: CRUD completo de bandas con select de genero
+4ba9ea9  fix: ruta default y wildcard, titulo e idioma, tests de componentes
+8aa0ced  chore: redirecciones de SPA para Netlify
+81ed60a  chore: instalar Bootstrap y cargarlo desde angular.json
+eebed54  feat: navbar responsive y estilos Bootstrap en tablas y formularios
+e4338e9  feat: manejo de errores y validación en formularios
+3f88add  feat: filtrado por país y ordenamiento por año
+3051632  fix: filtros siempre visibles despues de cargar géneros
+ec678fb  fix: filtros siempre visibles con 'Todos' por defecto
+5e4a4ae  revert: quitar filtros y ordenamiento, dejar estado original
+e580d49  docs: reemplazar README con documentación del TP
+3751fd6  docs: README sin emojis, documentación del TP
+7952ead  fix: HTML templates simples sin errores TS
+f8f1ff3  chore: add netlify.toml with correct config
+894011e  fix: flatten angular output and set netlify publish to dist root
+2443c8d  fix: set production apiUrl to Render backend
+c640847  chore: trigger netlify redeploy
+11b9f34  chore: borrar archivo temporal deploy-trigger.txt
+0c1f51d  feat: mostrar errores del backend y estado de carga en la UI
+a64ba15  fix(test): agregar provideHttpClient en el spec de Bandas (fallaban 2 tests)
+29029da  style: corregir indentacion en el servicio de generos
+1d073f7  docs: documentar deploys, corregir ruta de build y environments
+```
+
+Cada commit es una unidad que funciona por sí sola: primero el CRUD de Géneros, después el de
+Bandas con la relación, luego el layout con Bootstrap, el manejo de errores y por último el
+deploy y su documentación.
+
+### Commits del backend durante la Entrega 2
+
+```
+8ee64fb  docs: agregar URLs de deploy, instrucciones de Render y seccion de tests
+a24a9e2  docs: agregar .env.example y actualizar instrucciones de configuracion
+fb2dadf  fix: manejar error de arranque y reparar script de tests e2e
+a0d8635  chore: destrackear sesion IA y export Postman local, normalizar docker-compose
+4beafdc  revert: quitar filtros pa y orden en bandas
+e8ef4e2  feat: ordenar alfabéticamente géneros y bandas en findAll
+08e6368  fix: errores 409 y 400 con mensaje en generos
+d40c6f5  fix: asignar la relacion genero al crear banda
+4d0eb74  feat: habilitar CORS para el frontend
+7b6c2cd  docs: README propio del TP con endpoints y puesta en marcha
+```
+
+### Limitaciones y notas
+
+- El backend usa el **plan gratuito de Render**, que duerme el servicio: la primera petición
+  puede tardar ~40 s. Por eso la UI muestra el estado de carga.
+- `synchronize: true` crea las tablas al arrancar (aceptable para el TP; en un proyecto real
+  irían migraciones). Si la base gratuita de Render se recrea o vence, hay que volver a cargar
+  los datos de ejemplo.
+- La UI final no incluye filtros ni ordenamiento: se probaron y se revirtieron para no salir
+  del alcance de la consigna. El filtro por género sigue disponible en la API
+  (`GET /bandas?generoId=`) y está cubierto en la colección de Postman.
+- El log completo de la sesión (`LOG-SESION-OPENCODE.json`) no se versiona por su tamaño
+  (2.4 MB); se conserva aparte para la entrega.
+
