@@ -1,4 +1,11 @@
-import { IsString, IsNotEmpty, MaxLength, IsNumber, Min, Max } from 'class-validator';
+import {
+  IsString,
+  IsNotEmpty,
+  MaxLength,
+  IsNumber,
+  Min,
+  Max,
+} from 'class-validator';
 import { Type } from 'class-transformer';
 
 export class CreateBandaDto {

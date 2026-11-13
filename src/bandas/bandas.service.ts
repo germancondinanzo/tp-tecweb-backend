@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  BadRequestException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Banda } from './entities/banda.entity';
@@ -16,7 +20,9 @@ export class BandasService {
   ) {}
 
   async create(dto: CreateBandaDto): Promise<Banda> {
-    const genero = await this.generosRepository.findOne({ where: { id: dto.generoId } });
+    const genero = await this.generosRepository.findOne({
+      where: { id: dto.generoId },
+    });
     if (!genero) {
       throw new BadRequestException(`Género con id ${dto.generoId} no existe`);
     }
@@ -44,9 +50,13 @@ export class BandasService {
 
   async update(id: number, dto: UpdateBandaDto): Promise<Banda> {
     if (dto.generoId !== undefined) {
-      const genero = await this.generosRepository.findOne({ where: { id: dto.generoId } });
+      const genero = await this.generosRepository.findOne({
+        where: { id: dto.generoId },
+      });
       if (!genero) {
-        throw new BadRequestException(`Género con id ${dto.generoId} no existe`);
+        throw new BadRequestException(
+          `Género con id ${dto.generoId} no existe`,
+        );
       }
     }
     await this.findOne(id);
