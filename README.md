@@ -1,8 +1,21 @@
 # TP Tecnologías Web — Backend (NestJS + PostgreSQL)
 
-**Entrega 1 del TP Especial** de la materia Tecnologías Web (TUARI).
+**Trabajo Práctico Especial** de la materia Tecnologías Web (TUARI). Este repositorio es la
+**Entrega 1 (backend + Postman)** y es la API que consume el **frontend de la Entrega 2**.
 
 API REST para administrar **bandas** y sus **géneros musicales** (relación 1 a N).
+
+## Deploy
+
+| Parte | URL |
+|---|---|
+| **API (Render)** | https://tp-tecweb-backend.onrender.com |
+| **Frontend (Netlify)** | https://courageous-dango-2e1b41.netlify.app |
+
+Ejemplo: https://tp-tecweb-backend.onrender.com/generos
+
+> El servicio usa el plan gratuito de Render, que **duerme la instancia por inactividad**: la
+> primera petición puede tardar hasta ~40 segundos. Luego responde normal.
 
 ## Modelo de datos
 
@@ -72,11 +85,42 @@ La foreign key vive en `Banda` (lado N), en la columna `genero_id`.
 
 La app queda en `http://localhost:3000`. TypeORM crea las tablas automáticamente al arrancar (`synchronize: true`).
 
+## Deploy en Render
+
+Configuración del servicio web:
+
+- **Build command**: `npm install && npm run build`
+- **Start command**: `npm run start:prod` (`node dist/main`, sin watch)
+- **Variables de entorno**: las mismas de `.env.example`, cargadas a mano en el panel de Render
+  (el `.env` no se versiona). La base es un PostgreSQL de Render y se usa su **Internal Database
+  URL**.
+- La app escucha en `process.env.PORT` (lo inyecta Render), no en un puerto fijo.
+- **CORS** habilitado (`app.enableCors()`), para que el frontend de Netlify pueda consumir la API.
+
+Notas:
+
+- `synchronize: true` crea las tablas al primer arranque. Es aceptable para el TP; en un proyecto
+  real se usarían migraciones.
+- La colección de Postman funciona contra Render cambiando **solo** la variable `baseUrl`.
+
+## Tests
+
+```bash
+npm test          # tests unitarios (Jest)
+npm run test:e2e  # tests e2e (requiere la base levantada con docker-compose)
+npm run lint      # ESLint
+```
+
 ## Postman
 
 La colección está en `postman_collection.json` (22 requests, 32 verificaciones entre casos de éxito y de error). Importarla en Postman o ejecutarla desde ahí.
 
+Para probar contra producción, cambiar únicamente la variable `baseUrl` a
+`https://tp-tecweb-backend.onrender.com` (las demás variables se completan solas con los
+scripts de la colección).
+
 ## Documentación
 
 - `HISTORIAL.md` — resumen del desarrollo, decisiones de diseño y errores resueltos.
-- `LOG-SESION-OPENCODE.json` — log completo de la sesión con el agente de IA.
+- El log completo de la sesión con el agente de IA (`LOG-SESION-OPENCODE.json`) no se versiona
+  por su tamaño (2.4 MB); se conserva aparte para la entrega.
