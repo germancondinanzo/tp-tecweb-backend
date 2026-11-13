@@ -46,7 +46,7 @@ La foreign key vive en `Banda` (lado N), en la columna `genero_id`.
    npm install
    ```
 
-2. Crear el archivo `.env` en la raíz con las credenciales de la base:
+2. Crear el archivo `.env` en la raíz (podés copiar `.env.example`) con las credenciales de la base:
 
    ```env
    DB_TYPE=postgres
