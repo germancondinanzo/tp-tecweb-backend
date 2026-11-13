@@ -190,9 +190,14 @@ La configuración `development` de `angular.json` hace el `fileReplacements` de
    (`banda.genero.nombre`, que llega anidado desde el backend) y el formulario tiene un
    `<select>` que carga los géneros con `[ngValue]="genero.id"`. Al editar, el select queda
    preseleccionado porque se bindea por **id**, no por objeto.
-5. **Layout** — Bootstrap cargado desde `angular.json`, navbar responsive y tablas
+5. **Filtro por género en la UI** — sobre el listado de bandas, un `<select>` con "Todos los
+   géneros" que llama a `GET /bandas?generoId=` al cambiar y recarga solo la tabla. Se muestra
+   el total (`Total: N`) con la aclaración "(filtrado)" y un mensaje específico cuando no hay
+   bandas de ese género. No requirió cambios en el backend: usa el filtro que ya existía en la
+   API y en la colección de Postman.
+6. **Layout** — Bootstrap cargado desde `angular.json`, navbar responsive y tablas
    `table-responsive` para que se vean bien en el celular.
-6. **Errores y validación** — se muestra al usuario un `alert` con el mensaje del backend
+7. **Errores y validación** — se muestra al usuario un `alert` con el mensaje del backend
    (incluido el caso en que `class-validator` devuelve `message` como **array**) y un estado de
    carga con spinner mientras responde la API.
 
@@ -247,6 +252,7 @@ La configuración `development` de `angular.json` hace el `fileReplacements` de
 | Requisito (consigna Entrega 2) | Estado |
 |---|---|
 | CRUD completo desde la UI, mostrando las dos entidades y su relación | OK |
+| Filtro de bandas por género en la UI | OK — `GET /bandas?generoId=`, con total y estado vacío |
 | Consume los endpoints de la Entrega 1 vía servicios de Angular | OK |
 | Manejo de errores y mensajes al usuario | OK — alerta con el mensaje del backend |
 | Validación de formularios | OK — `required` en el front + validaciones del DTO en el back |
@@ -295,6 +301,7 @@ c640847  chore: trigger netlify redeploy
 a64ba15  fix(test): agregar provideHttpClient en el spec de Bandas (fallaban 2 tests)
 29029da  style: corregir indentacion en el servicio de generos
 1d073f7  docs: documentar deploys, corregir ruta de build y environments
+c5e5943  feat: filtrar bandas por genero desde la UI
 ```
 
 Cada commit es una unidad que funciona por sí sola: primero el CRUD de Géneros, después el de
@@ -323,9 +330,9 @@ d40c6f5  fix: asignar la relacion genero al crear banda
 - `synchronize: true` crea las tablas al arrancar (aceptable para el TP; en un proyecto real
   irían migraciones). Si la base gratuita de Render se recrea o vence, hay que volver a cargar
   los datos de ejemplo.
-- La UI final no incluye filtros ni ordenamiento: se probaron y se revirtieron para no salir
-  del alcance de la consigna. El filtro por género sigue disponible en la API
-  (`GET /bandas?generoId=`) y está cubierto en la colección de Postman.
+- La UI final incluye el **filtro de bandas por género**. Se probaron además filtro por país y
+  ordenamiento por año, pero se revirtieron para no salir del alcance de la consigna. El filtro
+  por género se mantiene tanto en la API (`GET /bandas?generoId=`) como en la pantalla de bandas.
 - El log completo de la sesión (`LOG-SESION-OPENCODE.json`) no se versiona por su tamaño
   (2.4 MB); se conserva aparte para la entrega.
 
